@@ -1,0 +1,64 @@
+name: Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        repository:
+          - cp2004/github_management
+          - cp2004/OctoPrint-WS281x_LED_Status
+          - cp2004/OctoPrint-WLED
+          - cp2004/OctoPrint-EEPROM-Marlin
+          - cp2004/Octoprint-Upgrade-To-Py3
+          - cp2004/OctoPrint-GCodeMacros
+          - cp2004/OctoPrint-VirtualPrinterSettings
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: ${{ matrix.repository }}
+          # token: ${{ secrets.PERSONAL_TOKEN }}  # Needed for read-only access?
+        
+      - name: Determine default branch
+        run: |
+          DEFAULT_BRANCH=$(git remote show origin | awk '/HEAD branch/ {print $NF}')
+          echo "default_branch=$DEFAULT_BRANCH" >> $GITHUB_ENV
+          echo "default_branch_ref=refs/heads/$DEFAULT_BRANCH" >> $GITHUB_ENV
+          
+      - name: Verify results
+        run: |
+          echo ${{ env.default_branch }}
+          
+      #- uses: actions/checkout@v2
+      #  with:
+      #    path: sponsors
+      #- name: Read sponsors.md
+      #  id: sponsors
+      #  uses: juliangruber/read-file-action@v1
+      #  with:
+      #    path: ./sponsors/sponsors.md
+      #- uses: actions/checkout@v2
+      #  with:
+      #    repository: ${{ matrix.repository }}
+      #    token: ${{ secrets.PERSONAL_TOKEN }}
+      #- name: Replace sponsors in Readme
+      #  uses: mingjun97/regex-property-action@v1
+      #  with:
+      #    regex: '(## Sponsors.)(^.*)(##)'
+      #    replacement: '$1${{ steps.sponsors.outputs.content }}$3'
+      #    include: 'README.md'
+      #    flags: 'gsm'
+      #- name: push
+      #  uses: actions-x/commit@v2
+      #  with:
+      #    name: cp2004
+      #    email: 31997505+cp2004@users.noreply.github.com
+      #    message: ':heart: Update Sponsors'
+      #    files: README.md
+      #    repository: https://github.com/${{ matrix.repository }}
+      #    token: ${{ secrets.PERSONAL_TOKEN }}
+      #    branch: HEAD
